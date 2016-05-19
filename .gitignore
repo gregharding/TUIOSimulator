@@ -1,0 +1,31 @@
+# os
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
+# Unity, MonoDevelop / Visual Studio
+/[Ll]ibrary/
+/[Tt]emp/
+/[Bb]uild/
+/[Oo]bj/
+
+
+/*.csproj
+/*.sln
+*.unityproj
+*.booproj
+*.suo
+*.svd
+*.user
+*.userprefs
+*.pidb
+.vscode
+
+
+# project
+/[Ee]xported[Oo]bj/
