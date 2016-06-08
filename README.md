@@ -27,7 +27,7 @@ The hit areas for objects are currently larger than their visible sprites to mak
 
 **Download**
 
-Download executables for OS X and Windows at [https://github.com/gregharding/TUIOListener/releases](https://github.com/gregharding/TUIOListener/releases).
+Download executables for OS X and Windows at [https://github.com/gregharding/TUIOSimulator/releases](https://github.com/gregharding/TUIOSimulator/releases).
 
 **Author**
 
