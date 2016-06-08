@@ -67,14 +67,14 @@ public class SurfaceObject : MonoBehaviour, ISurfaceEntity {
 
 		Vector2 normalisedPosition = surface.GetNormalisedPosition(transform);
 		float angleRads = (transform.localEulerAngles.z < 0f) ? ((transform.localEulerAngles.z % 360f + 360f) * Mathf.Deg2Rad) : ((transform.localEulerAngles.z % 360f) * Mathf.Deg2Rad) ;
-		tuioObject = new TUIOObject(surface.NextSessionId(), _id, normalisedPosition.x, normalisedPosition.y, angleRads, 0f, 0f, 0f, 0f, 0f);
+		tuioObject = new TUIOObject(surface.NextSessionId(), _id, normalisedPosition.x, normalisedPosition.y, -angleRads, 0f, 0f, 0f, 0f, 0f);
 		surface.Add(this);
 	}
 
 	public void UpdateObject() {
 		Vector2 tuioPosition = surface.GetNormalisedPosition(transform);
 		float angleRads = (transform.localEulerAngles.z < 0f) ? ((transform.localEulerAngles.z % 360f + 360f) * Mathf.Deg2Rad) : ((transform.localEulerAngles.z % 360f) * Mathf.Deg2Rad) ;
-		tuioObject.Update(tuioPosition.x, tuioPosition.y, angleRads, 0f, 0f, 0f, 0f, 0f);
+		tuioObject.Update(tuioPosition.x, tuioPosition.y, -angleRads, 0f, 0f, 0f, 0f, 0f);
 	}
 
 	public void RemoveFromSurface() {

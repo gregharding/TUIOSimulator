@@ -188,7 +188,7 @@ public class Surface : MonoBehaviour {
 		if (so == null) return;
 
 		Vector2 position = Camera.main.ScreenToWorldPoint(touch.Position);
-		float angle = (float)(touch.Properties["Angle"]) * Mathf.Rad2Deg;
+		float angle = -(float)(touch.Properties["Angle"]) * Mathf.Rad2Deg;
 
 		so.transform.localPosition = position;
 		so.transform.eulerAngles = new Vector3(0f, 0f, angle);
