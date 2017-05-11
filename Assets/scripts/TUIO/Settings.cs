@@ -98,6 +98,6 @@ namespace TUIOSimulator {
 
 		public static bool IsValidPort(int port, bool allow0 = false) {
 			return ((port >= 1024 && port <= ushort.MaxValue) || (port == 0 && allow0));
-		}
+		}		
 	}
 }

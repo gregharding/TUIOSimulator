@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using TUIOSimulator;
 using TUIOSimulator.Entities;
 using TouchScript;
@@ -55,6 +56,7 @@ public class Surface : MonoBehaviour {
 
 		RemoveSurfaceCursors();
 	}
+
 
 	//
 	// init surface entities
@@ -281,6 +283,10 @@ public class Surface : MonoBehaviour {
 	//
 	// events
 	//
+
+	public void OnSettingsButtonPressed() {
+		SceneManager.LoadScene("launch");
+	}
 
 	public void OnResetSurfaceObjectsButtonPressed() {
 		ResetSurfaceObjects();
