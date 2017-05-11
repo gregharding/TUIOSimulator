@@ -80,7 +80,11 @@ namespace TouchScript.Editor.Gestures
 
         public override void OnInspectorGUI()
         {
-            serializedObject.UpdateIfDirtyOrScript();
+#if UNITY_5_6_OR_NEWER
+			serializedObject.UpdateIfRequiredOrScript();
+#else
+			serializedObject.UpdateIfDirtyOrScript();
+#endif
 
             EditorGUI.BeginChangeCheck();
             var expanded = GUIElements.BeginFoldout(advanced.isExpanded, TEXT_ADVANCED_HEADER);
@@ -151,6 +155,12 @@ namespace TouchScript.Editor.Gestures
                     minTouchesFloat = 0;
                     maxTouchesFloat = 10;
                 }
+                else
+                {
+                    minTouchesFloat = (float) minTouches.intValue;
+                    maxTouchesFloat = (float) maxTouches.intValue;
+                }
+                //or this values doesn't change from script properly
                 EditorGUI.indentLevel++;
                 EditorGUILayout.LabelField("Min: " + (int)minTouchesFloat + ", Max: " + (int)maxTouchesFloat);
                 EditorGUILayout.MinMaxSlider(ref minTouchesFloat, ref maxTouchesFloat, 0, 10);

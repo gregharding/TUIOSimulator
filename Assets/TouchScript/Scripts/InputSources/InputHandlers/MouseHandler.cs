@@ -85,7 +85,7 @@ namespace TouchScript.InputSources.InputHandlers
             }
 
             // Need to end fake pointer
-			if (fakeMousePointId > -1 && !(Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+            if (fakeMousePointId > -1 && !(Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)))
             {
                 endTouch(fakeMousePointId);
                 fakeMousePointId = -1;
@@ -94,7 +94,7 @@ namespace TouchScript.InputSources.InputHandlers
             if (Input.GetMouseButtonDown(0))
             {
                 var pos = Input.mousePosition;
-				if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && fakeMousePointId == -1)
+                if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && fakeMousePointId == -1)
                     fakeMousePointId = beginTouch(new Vector2(pos.x, pos.y), tags, true).Id;
                 else if (mousePointId == -1) mousePointId = beginTouch(new Vector2(pos.x, pos.y), tags, true).Id;
             }
