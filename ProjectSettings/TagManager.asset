@@ -44,3 +44,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: objects
+    uniqueID: 3295656145
+    locked: 0
+  - name: cursors
+    uniqueID: 1005271251
+    locked: 0

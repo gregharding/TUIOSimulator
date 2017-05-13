@@ -22,6 +22,7 @@ public class Surface : MonoBehaviour {
 
 	public int spawnObjectCount = 8;
 	private List<SurfaceObject> surfaceObjects;
+	private int topObjectSortOrder;
 
 	public BoxCollider2D boxCollider2D;
 
@@ -97,6 +98,16 @@ public class Surface : MonoBehaviour {
 		for (int i=0; i<surfaceObjects.Count; i++) {
 			surfaceObjects[i].spriteRenderer.sortingOrder = i;
 		}
+
+		topObjectSortOrder = surfaceObjects.Count - 1;
+	}
+
+	private void NormaliseSurfaceObjectsSorting() {
+		for (int i=0; i<surfaceObjects.Count; i++) {
+			surfaceObjects[i].spriteRenderer.sortingOrder %= surfaceObjects.Count;
+		}
+
+		topObjectSortOrder = surfaceObjects.Count - 1;
 	}
 
 	public void ResetSurfaceObjects() {
@@ -151,8 +162,6 @@ public class Surface : MonoBehaviour {
 		Vector2 position = Camera.main.ScreenToWorldPoint(touch.Position);
 		sc.transform.localPosition = position;
 		sc.transform.SetParent(transform, false);
-
-		sc.spriteRenderer.sortingOrder = surfaceObjects.Count; // ie. above surface objects
 			
 		surfaceCursors[touch.Id] = sc;
 	}
@@ -185,7 +194,7 @@ public class Surface : MonoBehaviour {
 	// surface objects
 	//
 
-	private void UpdateSurfaceObject(TouchPoint touch) {
+	private void UpdateSurfaceObject(TouchPoint touch, bool moveToTop = false) {
 		SurfaceObject so = surfaceObjects.Find(s => s.id == (int)(touch.Properties["ObjectId"]));
 		if (so == null) return;
 
@@ -194,6 +203,14 @@ public class Surface : MonoBehaviour {
 
 		so.transform.localPosition = position;
 		so.transform.eulerAngles = new Vector3(0f, 0f, angle);
+
+		if (moveToTop) ShowSurfaceObjectOnTop(so);
+	}
+
+	public void ShowSurfaceObjectOnTop(SurfaceObject so) {
+		if (++topObjectSortOrder >= short.MaxValue) NormaliseSurfaceObjectsSorting();
+
+		so.spriteRenderer.sortingOrder = ++topObjectSortOrder;
 	}
 
 
@@ -207,9 +224,8 @@ public class Surface : MonoBehaviour {
 				// tuio
 				if (touch.Tags.HasTag(Tags.INPUT_TOUCH)) {
 					CreateSurfaceCursor(touch);
-				} else
-				if (touch.Tags.HasTag(Tags.INPUT_OBJECT)) {
-					UpdateSurfaceObject(touch);
+				} else if (touch.Tags.HasTag(Tags.INPUT_OBJECT)) {
+					UpdateSurfaceObject(touch, true);
 				}
 			} else {
 				// normal touch

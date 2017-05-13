@@ -3,6 +3,7 @@ using UnityEngine.Serialization;
 using System.Collections;
 using System.Collections.Generic;
 using TUIOSimulator.Entities;
+using TouchScript.Gestures;
 
 public class SurfaceObject : MonoBehaviour, ISurfaceEntity {
 
@@ -22,14 +23,18 @@ public class SurfaceObject : MonoBehaviour, ISurfaceEntity {
 	public SpriteRenderer spriteRenderer { get; protected set; }
 	public Collider2D collider2d { get; protected set; }
 
+	private PressGesture pressGesture;
+
 
 	protected void Awake() {
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		collider2d = GetComponent<Collider2D>();
+		pressGesture = GetComponent<PressGesture>();
 	}
 
 	protected void OnEnable() {
 		Init(_id);
+		pressGesture.Pressed += OnPressed;
 	}
 
 	protected void Update() {
@@ -38,6 +43,7 @@ public class SurfaceObject : MonoBehaviour, ISurfaceEntity {
 	}
 
 	protected void OnDisable() {
+		pressGesture.Pressed -= OnPressed;
 		RemoveFromSurface();
 	}
 
@@ -69,6 +75,7 @@ public class SurfaceObject : MonoBehaviour, ISurfaceEntity {
 		float angleRads = (transform.localEulerAngles.z < 0f) ? ((transform.localEulerAngles.z % 360f + 360f) * Mathf.Deg2Rad) : ((transform.localEulerAngles.z % 360f) * Mathf.Deg2Rad) ;
 		tuioObject = new TUIOObject(surface.NextSessionId(), _id, normalisedPosition.x, normalisedPosition.y, -angleRads, 0f, 0f, 0f, 0f, 0f);
 		surface.Add(this);
+		surface.ShowSurfaceObjectOnTop(this);
 	}
 
 	public void UpdateObject() {
@@ -83,6 +90,11 @@ public class SurfaceObject : MonoBehaviour, ISurfaceEntity {
 		surface.Remove(this);
 		surface = null;
 		tuioObject = null;
+	}
+
+	private void OnPressed(object sender, System.EventArgs e) {
+		if (surface != null)
+			surface.ShowSurfaceObjectOnTop(this);
 	}
 
 
