@@ -25,6 +25,10 @@ namespace TUIOSimulator {
 
 		public static bool listen { get; private set; }
 
+		// options
+		public const bool defaultUseMouseOnly = false;
+		public static bool useMouseOnly { get; private set; }
+
 
 		static Settings() {
 			ipAddress = IPAddress.Parse(defaultIPAddress);
@@ -35,7 +39,7 @@ namespace TUIOSimulator {
 			listen = true;
 		}
 
-		public static void Use(string ipAddressString, string portString, string listenPortString, bool listen) {
+		public static void Use(string ipAddressString, string portString, string listenPortString, bool mouseOnly = false) {
 			if (string.IsNullOrEmpty(ipAddressString)) ipAddressString = defaultIPAddress;
 			if (string.IsNullOrEmpty(portString)) portString = defaultPort.ToString();
 			if (string.IsNullOrEmpty(listenPortString)) listenPortString = defaultListenPort.ToString();
@@ -46,14 +50,15 @@ namespace TUIOSimulator {
 			int listenPort = 0;
 			if (!int.TryParse(listenPortString, out listenPort)) listenPort = defaultListenPort;
 
-			Use(ipAddressString, port, listenPort, listen);
+			Use(ipAddressString, port, listenPort, mouseOnly);
 		}
 
-		public static void Use(string ipAddressString, int _port, int _listenPort, bool _listen) {
+		public static void Use(string ipAddressString, int _port, int _listenPort, bool _useMouseOnly = false) {
 			ipAddress = IsValidIpAddress(ipAddressString) ? IPAddress.Parse(ipAddressString) : IPAddress.Parse(defaultIPAddress);
 			port = IsValidPort(_port) ? _port : defaultPort;
 			listenPort = IsValidPort(_listenPort, true) ? _listenPort : defaultListenPort;
-			listen = (_listen && IsValidPort(listenPort, true));
+			listen = (IsValidPort(listenPort, true) && listenPort > 0);
+			useMouseOnly = _useMouseOnly;
 		}
 
 

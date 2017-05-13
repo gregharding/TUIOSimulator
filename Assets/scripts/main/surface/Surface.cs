@@ -285,7 +285,7 @@ public class Surface : MonoBehaviour {
 	//
 
 	public void OnSettingsButtonPressed() {
-		SceneManager.LoadScene("launch");
+		SceneManager.LoadScene("settings");
 	}
 
 	public void OnResetSurfaceObjectsButtonPressed() {

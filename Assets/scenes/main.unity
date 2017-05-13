@@ -1260,6 +1260,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   surface: {fileID: 26639317}
+  standardInput: {fileID: 1558504460}
   tuioInput: {fileID: 1558504463}
   infoMessage: {fileID: 284063486}
   errorMessage: {fileID: 374485895}

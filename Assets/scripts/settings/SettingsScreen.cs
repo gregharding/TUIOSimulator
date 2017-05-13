@@ -6,16 +6,20 @@ using UnityEngine.SceneManagement;
 using System;
 using TUIOSimulator;
 
-public class Launch : MonoBehaviour {
+public class SettingsScreen : MonoBehaviour {
 
 	public InputField ipAddressInput;
 	public InputField portInput;
 	public Text localIP;
 	public InputField listenPortInput;
 
+	public GameObject mouseOnlyHolder;
+	public Image mouseOnlyCheckbox;
+
 	private string ipAddress;
 	private int port;
 	private int listenPort;
+	private bool useMouseOnly;
 
 	private ServerHistory serverHistory;
 	private int historyIndex;
@@ -35,6 +39,19 @@ public class Launch : MonoBehaviour {
 
 		localIP.text = string.Join(", ", IPHelper.localIPAddresses.ToArray());
 
+
+		#if UNITY_STANDALONE || UNITY_WEBGL
+
+		useMouseOnly = Settings.defaultUseMouseOnly;
+		mouseOnlyCheckbox.enabled = useMouseOnly;
+
+		#else
+
+		mouseOnlyHolder.SetActive(false);
+
+		#endif
+
+
 		// history
 		serverHistory = ServerHistory.Load();
 		if (serverHistory.hasHistory) {
@@ -44,9 +61,9 @@ public class Launch : MonoBehaviour {
 	}
 
 	private void Go() {
-		Settings.Use(ipAddress, port, listenPort, listenPort > 0);
+		Settings.Use(ipAddress, port, listenPort, useMouseOnly);
 
-		serverHistory.Add(ipAddress, port, listenPort);
+		serverHistory.Add(ipAddress, port, listenPort, useMouseOnly);
 		serverHistory.Save();
 
 		SceneManager.LoadScene("main");
@@ -75,6 +92,10 @@ public class Launch : MonoBehaviour {
 
 	public void OnNextButtonPressed() {
 		ShowNextHistory();
+	}
+
+	public void OnMouseOnlyButtonPressed() {
+		ToggleMouseOnly();
 	}
 
 	public void OnStartButtonPressed() {
@@ -112,20 +133,22 @@ public class Launch : MonoBehaviour {
 		if (!serverHistory.hasHistory) return;
 
 		var entry = (index >= 0) ? serverHistory.servers[index] : serverHistory.mostRecent;
-		Show(entry.ipAddress, entry.port, entry.listenPort);
+		Show(entry.ipAddress, entry.port, entry.listenPort, entry.useMouseOnly);
 	}
 
-	private void Show(string ipAddress, int port, int listenPort) {
+	private void Show(string ipAddress, int port, int listenPort, bool useMouseOnly) {
 		// show input, leave fields blank if they match the defaults
 		ipAddressInput.text = (ipAddress != Settings.defaultIPAddress) ? ipAddress : "" ;
 		portInput.text = (port != Settings.defaultPort) ? port.ToString() : "" ;
 		listenPortInput.text = (listenPort != Settings.defaultListenPort) ? listenPort.ToString() : "";
+		mouseOnlyCheckbox.enabled = useMouseOnly;
+
+		ValidateInput();
 	}
 
-	private void Clear() {
-		ipAddressInput.text = "";
-		portInput.text = "";
-		listenPortInput.text = "";
+	private void ToggleMouseOnly() {
+		useMouseOnly = !useMouseOnly;
+		mouseOnlyCheckbox.enabled = useMouseOnly;
 	}
 
 	private bool ValidateInput() {
@@ -152,6 +175,8 @@ public class Launch : MonoBehaviour {
 		portInput.textComponent.color = portError ? errorColour : normalColour;
 		listenPortInput.textComponent.color = listenPortError ? errorColour : normalColour;
 
+		useMouseOnly = mouseOnlyCheckbox.enabled;
+
 		return !(ipAddressError || portError || listenPortError);
 	}
 
@@ -166,11 +191,11 @@ public class Launch : MonoBehaviour {
 		public const string prefKey = "ServerHistory";
 		public const int maxHistory = 10;
 
-		public List<IPAddressPort> servers = new List<IPAddressPort>();
+		public List<ServerHistoryEntry> servers = new List<ServerHistoryEntry>();
 
 		public int count { get { return servers.Count; } }
 		public bool hasHistory { get { return servers.Count > 0; } }
-		public IPAddressPort mostRecent { get { return hasHistory ? servers[servers.Count-1] : null; } }
+		public ServerHistoryEntry mostRecent { get { return hasHistory ? servers[servers.Count-1] : null; } }
 
 
 		public static ServerHistory Load() {
@@ -184,18 +209,18 @@ public class Launch : MonoBehaviour {
 			}		
 		}
 
-		public void Add(string ipAddress, int port, int listenPort) {
+		public void Add(string ipAddress, int port, int listenPort, bool useMouseOnly) {
 			// don't add  duplicate of most recent entry or default values to an empty history
 			if (hasHistory) {
 				var entry = mostRecent;
-				if (ipAddress == entry.ipAddress && port == entry.port && listenPort == entry.listenPort)
+				if (ipAddress == entry.ipAddress && port == entry.port && listenPort == entry.listenPort && useMouseOnly == entry.useMouseOnly)
 					return;
 
-			} else if ((ipAddress == "" || ipAddress == Settings.defaultIPAddress) && (port == 0 || port == Settings.defaultPort) && (listenPort == 0 || listenPort == Settings.defaultListenPort)) {
+			} else if ((ipAddress == "" || ipAddress == Settings.defaultIPAddress) && (port == 0 || port == Settings.defaultPort) && (listenPort == 0 || listenPort == Settings.defaultListenPort) && useMouseOnly == Settings.defaultUseMouseOnly) {
 				return;
 			}
 
-			servers.Add(new IPAddressPort { ipAddress = ipAddress, port = port, listenPort = listenPort } );			
+			servers.Add(new ServerHistoryEntry { ipAddress = ipAddress, port = port, listenPort = listenPort, useMouseOnly = useMouseOnly } );			
 		}
 
 		public void Save() {
@@ -212,10 +237,11 @@ public class Launch : MonoBehaviour {
 
 
 	[Serializable]
-	public class IPAddressPort {
+	public class ServerHistoryEntry {
 
 		public string ipAddress;
 		public int port;
 		public int listenPort;
+		public bool useMouseOnly;
 	}
 }
