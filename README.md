@@ -18,6 +18,7 @@ Can be used with TUIOListener ([https://github.com/gregharding/TUIOListener](htt
 
 Libraries:
 * [https://github.com/TouchScript/TouchScript](https://github.com/TouchScript/TouchScript)
+* [https://github.com/Unity-Technologies/PostProcessing/tree/v1](https://github.com/Unity-Technologies/PostProcessing/tree/v1)
 
 **Download**
 
