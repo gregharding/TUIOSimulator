@@ -42,7 +42,7 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 9
+  serializedVersion: 11
   m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
@@ -54,7 +54,7 @@ LightmapSettings:
     m_EnableBakedLightmaps: 0
     m_EnableRealtimeLightmaps: 0
   m_LightmapEditorSettings:
-    serializedVersion: 8
+    serializedVersion: 9
     m_Resolution: 2
     m_BakeResolution: 40
     m_TextureWidth: 1024
@@ -87,7 +87,7 @@ LightmapSettings:
     m_PVRFilteringAtrousNormalSigma: 1
     m_PVRFilteringAtrousPositionSigma: 1
   m_LightingDataAsset: {fileID: 0}
-  m_ShadowMaskMode: 2
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -225,6 +225,8 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
 --- !u!1 &280611794
 GameObject:
   m_ObjectHideFlags: 0
@@ -634,19 +636,19 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 542
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 305
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_SizeDelta.x
-      value: 1084
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_SizeDelta.y
-      value: 610
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_AnchorMin.x
@@ -666,23 +668,23 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_Pivot.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_Pivot.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_LocalScale.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_LocalScale.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22401058, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: m_LocalScale.z
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: c0dc5781cae4a6348b42ea6b818a3f9c, type: 2}
       propertyPath: showTouchId
@@ -724,15 +726,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 536258503}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 797eed971a75647609ca044e7924beb7, type: 3}
+  m_Script: {fileID: 11500000, guid: 803d2abe167ae40a0957010be5cfb7d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horizontalAxis: Horizontal
-  verticalAxis: Vertical
-  submitButton: Submit
-  cancelButton: Cancel
-  inputActionsPerSecond: 10
-  repeatDelay: 0.5
+  HorizontalAxis: Horizontal
+  VerticalAxis: Vertical
+  SubmitButton: Submit
+  CancelButton: Cancel
+  InputActionsPerSecond: 10
+  RepeatDelay: 0.5
 --- !u!114 &536258505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1065,23 +1067,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e276ccba4f7314d9988af19f9b3a611b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  advancedProps: 0
-  TouchTags:
-    tagList:
-    - Touch
-  MouseTags:
-    tagList:
-    - Mouse
-  PenTags:
-    tagList:
-    - Pen
-  Windows8Touch: 0
-  Windows7Touch: 0
-  WebPlayerTouch: 1
-  WebGLTouch: 1
-  Windows8Mouse: 1
-  Windows7Mouse: 1
-  UniversalWindowsMouse: 1
+  basicEditor: 0
+  generalProps: 0
+  windowsProps: 0
+  webglProps: 0
+  windows8API: 1
+  windows7API: 0
+  webGLTouch: 1
+  windows8Mouse: 1
+  windows7Mouse: 1
+  universalWindowsMouse: 1
+  emulateSecondMousePointer: 1
 --- !u!114 &1558504461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1093,12 +1089,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dd4c394fe06f4ea49e03aaa5e7a8190, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnFrameStart:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: TouchScript.TouchManager+FrameEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  OnFrameFinish:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: TouchScript.TouchManager+FrameEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  OnPointersAdd:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: TouchScript.TouchManager+PointerEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  OnPointersUpdate:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: TouchScript.TouchManager+PointerEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  OnPointersPress:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: TouchScript.TouchManager+PointerEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  OnPointersRelease:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: TouchScript.TouchManager+PointerEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  OnPointersRemove:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: TouchScript.TouchManager+PointerEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  OnPointersCancel:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: TouchScript.TouchManager+PointerEvent, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  basicEditor: 0
   displayDevice: {fileID: 0}
   shouldCreateCameraLayer: 0
   shouldCreateStandardInput: 0
   useSendMessage: 0
   sendMessageEvents: 60
   sendMessageTarget: {fileID: 0}
+  useUnityEvents: 0
   layers:
   - {fileID: 1947434421}
 --- !u!4 &1558504462
@@ -1126,22 +1164,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c4b35b5ee8a443439ce04199575743f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  advancedProps: 0
-  tuioPort: 3332
+  basicEditor: 1
+  tuioPort: 33333
   supportedInputs: 7
-  tuioObjectMappings: []
-  cursorTags:
-    tagList:
-    - TUIO
-    - Touch
-  blobTags:
-    tagList:
-    - TUIO
-    - Touch
-  objectTags:
-    tagList:
-    - TUIO
-    - Object
 --- !u!1 &1947434417
 GameObject:
   m_ObjectHideFlags: 0
@@ -1225,14 +1250,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1947434417}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2c791a2415314ea3b9f44592097a9d1, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e5768c36d1bb4acea50bd233372843a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Name: mainCamera
+  basicEditor: 1
+  advancedProps: 0
+  hitProps: 0
+  hit3DObjects: 1
+  hit2DObjects: 1
+  hitWorldSpaceUI: 1
+  hitScreenSpaceUI: 1
   layerMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  layerIds: c3c0abf600000000
+  useHitFilters: 0
 --- !u!114 &1947434422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1273,6 +1305,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   surface: {fileID: 26639317}
+  inputHolder: {fileID: 0}
+  normalStandardInput: {fileID: 0}
+  emulatedStandardInput: {fileID: 0}
   standardInput: {fileID: 1558504460}
   tuioInput: {fileID: 1558504463}
   infoMessage: {fileID: 284063486}

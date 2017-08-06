@@ -1,3 +1,7 @@
+/*
+ * @author Valentin Simonov / http://va.lent.in/
+ */
+
 using TouchScript.Utils.Attributes;
 using UnityEditor;
 using UnityEngine;
@@ -28,21 +32,21 @@ namespace TouchScript.Editor.Utils.PropertyDrawers
                 switch (property.propertyType)
                 {
                     case SerializedPropertyType.ObjectReference:
-                        property.objectReferenceValue = (Object)getNullValue(property);
+                        property.objectReferenceValue = (Object) getNullValue(property);
                         break;
                     case SerializedPropertyType.Integer:
-                        property.intValue = (int)getNullValue(property);
+                        property.intValue = (int) getNullValue(property);
                         break;
                     case SerializedPropertyType.Float:
-                        property.floatValue = (float)getNullValue(property);
+                        property.floatValue = (float) getNullValue(property);
                         break;
                 }
             }
             else
             {
                 EditorGUI.BeginChangeCheck();
-                EditorGUI.LabelField(new Rect(position.x + 14, position.y + 18, 40, 16), new GUIContent("Value", label.tooltip));
-                position = new Rect(position.x + 54, position.y + 18, position.width - 54, 16);
+                EditorGUI.LabelField(new Rect(position.x + 14, position.y + 18, 50, 16), new GUIContent("Value", label.tooltip));
+                position = new Rect(position.x + 54, position.y + 18, Mathf.Min(position.width - 54, 100), 16);
                 switch (property.propertyType)
                 {
                     case SerializedPropertyType.ObjectReference:
@@ -133,7 +137,9 @@ namespace TouchScript.Editor.Utils.PropertyDrawers
         private void Begin(Rect position, SerializedProperty property, GUIContent label)
         {
             label = EditorGUI.BeginProperty(position, label, property);
+            label.text = " " + label.text;
             position.height = 16;
+            EditorGUIUtility.labelWidth = 180;
             expanded = EditorGUI.ToggleLeft(position, label, expanded == true);
         }
 
@@ -155,9 +161,9 @@ namespace TouchScript.Editor.Utils.PropertyDrawers
                 case SerializedPropertyType.ObjectReference:
                     return ReferenceEquals(property.objectReferenceValue, getNullValue(property));
                 case SerializedPropertyType.Integer:
-                    return property.intValue == (int)getNullValue(property);
+                    return property.intValue == (int) getNullValue(property);
                 case SerializedPropertyType.Float:
-                    return property.floatValue == (float)getNullValue(property);
+                    return property.floatValue == (float) getNullValue(property);
             }
             return false;
         }

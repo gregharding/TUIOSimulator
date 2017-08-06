@@ -6,14 +6,16 @@ using System;
 using System.Collections.Generic;
 using TouchScript.Utils;
 using TouchScript.Utils.Attributes;
+using TouchScript.Pointers;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace TouchScript.Gestures
 {
     /// <summary>
-    /// Recognizes when last touch is released from target.
-    /// Works with any gesture unless a Delegate is set.
+    /// Recognizes when last pointer is released from target. Works with any gesture unless a Delegate is set. 
     /// </summary>
+    /// <seealso cref="PressGesture"/>
     [AddComponentMenu("TouchScript/Gestures/Release Gesture")]
     [HelpURL("http://touchscript.github.io/docs/html/T_TouchScript_Gestures_ReleaseGesture.htm")]
     public class ReleaseGesture : Gesture
@@ -41,6 +43,11 @@ namespace TouchScript.Gestures
         // Needed to overcome iOS AOT limitations
         private EventHandler<EventArgs> releasedInvoker;
 
+        /// <summary>
+        /// Unity event, occurs when gesture is recognized.
+        /// </summary>
+		public GestureEvent OnRelease = new GestureEvent();
+
         #endregion
 
         #region Public properties
@@ -63,17 +70,41 @@ namespace TouchScript.Gestures
         [ToggleLeft]
         private bool ignoreChildren = false;
 
-        #endregion
+#if UNITY_5_6_OR_NEWER
+		private CustomSampler gestureSampler;
+#endif
 
-        #region Gesture callbacks
+		#endregion
 
-        /// <inheritdoc />
-        public override bool ShouldReceiveTouch(TouchPoint touch)
+		#region Unity
+
+		/// <inheritdoc />
+		protected override void Awake()
+		{
+			base.Awake();
+
+#if UNITY_5_6_OR_NEWER
+			gestureSampler = CustomSampler.Create("[TouchScript] Release Gesture");
+#endif
+		}
+
+		[ContextMenu("Basic Editor")]
+		private void switchToBasicEditor()
+		{
+			basicEditor = true;
+		}
+
+		#endregion
+
+		#region Gesture callbacks
+
+		/// <inheritdoc />
+		public override bool ShouldReceivePointer(Pointer pointer)
         {
-            if (!IgnoreChildren) return base.ShouldReceiveTouch(touch);
-            if (!base.ShouldReceiveTouch(touch)) return false;
+            if (!IgnoreChildren) return base.ShouldReceivePointer(pointer);
+            if (!base.ShouldReceivePointer(pointer)) return false;
 
-            if (touch.Target != cachedTransform) return false;
+            if (pointer.GetPressData().Target != cachedTransform) return false;
             return true;
         }
 
@@ -92,11 +123,50 @@ namespace TouchScript.Gestures
         }
 
         /// <inheritdoc />
-        protected override void touchesEnded(IList<TouchPoint> touches)
+        protected override void pointersPressed(IList<Pointer> pointers)
         {
-            base.touchesEnded(touches);
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.Begin();
+#endif
 
-            if (touchesNumState == TouchesNumState.PassedMinThreshold) setState(GestureState.Recognized);
+            base.pointersPressed(pointers);
+
+            if (pointersNumState == PointersNumState.PassedMinThreshold)
+            {
+                if (State == GestureState.Idle) setState(GestureState.Possible);
+#if UNITY_5_6_OR_NEWER
+				gestureSampler.End();
+#endif
+                return;
+            }
+            if (pointersNumState == PointersNumState.PassedMinMaxThreshold)
+            {
+                setState(GestureState.Failed);
+#if UNITY_5_6_OR_NEWER
+				gestureSampler.End();
+#endif
+                return;
+            }
+
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.End();
+#endif
+        }
+
+        /// <inheritdoc />
+        protected override void pointersReleased(IList<Pointer> pointers)
+        {
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.Begin();
+#endif
+
+            base.pointersReleased(pointers);
+
+            if (pointersNumState == PointersNumState.PassedMinThreshold) setState(GestureState.Recognized);
+
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.End();
+#endif
         }
 
         /// <inheritdoc />
@@ -105,6 +175,7 @@ namespace TouchScript.Gestures
             base.onRecognized();
             if (releasedInvoker != null) releasedInvoker.InvokeHandleExceptions(this, EventArgs.Empty);
             if (UseSendMessage && SendMessageTarget != null) SendMessageTarget.SendMessage(RELEASE_MESSAGE, this, SendMessageOptions.DontRequireReceiver);
+			if (UseUnityEvents) OnRelease.Invoke(this);
         }
 
         #endregion

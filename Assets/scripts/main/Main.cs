@@ -38,13 +38,6 @@ public class Main : SingletonMonoBehaviour<Main> {
 
 		serverInfo = string.Format("Sending: {0}:{1}\nReceiving: {2}", Settings.ipAddress, Settings.port, Settings.listenPort);
 
-		if (Settings.useMouseOnly) {
-			standardInput.Windows8Touch = StandardInput.Windows8TouchAPIType.None;
-			standardInput.Windows7Touch = StandardInput.Windows7TouchAPIType.None;
-			standardInput.WebPlayerTouch = false;
-			standardInput.WebGLTouch = false;
-		}
-
 		tuioTransmitter = new TUIOTransmitter(Settings.ipAddress, Settings.port);
 		tuioTransmitter.Connect();
 

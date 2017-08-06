@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using TUIOSimulator;
 using TUIOSimulator.Entities;
 using TouchScript;
+using TouchScript.Pointers;
 using TouchScript.InputSources;
 
 public class Surface : MonoBehaviour {
@@ -40,19 +41,23 @@ public class Surface : MonoBehaviour {
 		Init(spawnObjectCount);
 
 		if (TouchManager.Instance != null) {
-			TouchManager.Instance.TouchesBegan += OnTouchesBegan;
-			TouchManager.Instance.TouchesMoved += OnTouchesMoved;
-			TouchManager.Instance.TouchesEnded += OnTouchesEnded;
-			TouchManager.Instance.TouchesCancelled += OnTouchesCancelled;
+			TouchManager.Instance.PointersAdded += OnPointersAdded;
+			TouchManager.Instance.PointersPressed += OnPointersPressed;
+			TouchManager.Instance.PointersUpdated += OnPointersUpdated;
+			TouchManager.Instance.PointersRemoved += OnPointersRemoved;
+			TouchManager.Instance.PointersReleased += OnPointersReleased;
+			TouchManager.Instance.PointersCancelled += OnPointersCancelled;
 		}
 	}
 
 	protected void OnDisable() {
 		if (TouchManager.Instance != null) {
-			TouchManager.Instance.TouchesBegan -= OnTouchesBegan;
-			TouchManager.Instance.TouchesMoved -= OnTouchesMoved;
-			TouchManager.Instance.TouchesEnded -= OnTouchesEnded;
-			TouchManager.Instance.TouchesCancelled -= OnTouchesCancelled;
+			TouchManager.Instance.PointersAdded -= OnPointersAdded;
+			TouchManager.Instance.PointersPressed -= OnPointersPressed;
+			TouchManager.Instance.PointersUpdated -= OnPointersUpdated;
+			TouchManager.Instance.PointersRemoved -= OnPointersRemoved;
+			TouchManager.Instance.PointersReleased -= OnPointersReleased;
+			TouchManager.Instance.PointersCancelled -= OnPointersCancelled;
 		}
 
 		RemoveSurfaceCursors();
@@ -146,38 +151,38 @@ public class Surface : MonoBehaviour {
 	// surface cursors
 	//
 
-	private void CreateSurfaceCursor(TouchPoint touch) {
-		if (surfaceCursors.ContainsKey(touch.Id)) RemoveSurfaceCursor(touch);
+	private void CreateSurfaceCursor(Pointer pointer) {
+		if (surfaceCursors.ContainsKey(pointer.Id)) RemoveSurfaceCursor(pointer);
 
 		// only create cursor if not over UI (no normal event system tracking mouse and pointer being injected does not exist for IsPointerOverGameObject check)
-		if (IsScreenPositionOverUI(touch.Position)) return;
+		if (IsScreenPositionOverUI(pointer.Position)) return;
 
 		// raycast, only create cursor if no other entities are hit
-		Ray ray = Camera.main.ScreenPointToRay(touch.Position);
+		Ray ray = Camera.main.ScreenPointToRay(pointer.Position);
 		RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
 		if (hit.collider != null && hit.collider != boxCollider2D) return;
 			
 		SurfaceCursor sc = Instantiate<SurfaceCursor>(surfaceCursorPrefab);
 
-		Vector2 position = Camera.main.ScreenToWorldPoint(touch.Position);
+		Vector2 position = Camera.main.ScreenToWorldPoint(pointer.Position);
 		sc.transform.localPosition = position;
 		sc.transform.SetParent(transform, false);
 			
-		surfaceCursors[touch.Id] = sc;
+		surfaceCursors[pointer.Id] = sc;
 	}
 
-	private void UpdateSurfaceCursor(TouchPoint touch) {
+	private void UpdateSurfaceCursor(Pointer pointer) {
 		SurfaceCursor sc;
-		if (surfaceCursors.TryGetValue(touch.Id, out sc)) {
-			Vector2 position = Camera.main.ScreenToWorldPoint(touch.Position);
+		if (surfaceCursors.TryGetValue(pointer.Id, out sc)) {
+			Vector2 position = Camera.main.ScreenToWorldPoint(pointer.Position);
 			sc.transform.localPosition = position;
 		}
 	}
 
-	private void RemoveSurfaceCursor(TouchPoint touch) {
+	private void RemoveSurfaceCursor(Pointer pointer) {
 		SurfaceCursor sc;
-		if (surfaceCursors.TryGetValue(touch.Id, out sc)) {
-			surfaceCursors.Remove(touch.Id);
+		if (surfaceCursors.TryGetValue(pointer.Id, out sc)) {
+			surfaceCursors.Remove(pointer.Id);
 			Destroy(sc.gameObject);
 		}
 	}
@@ -194,12 +199,13 @@ public class Surface : MonoBehaviour {
 	// surface objects
 	//
 
-	private void UpdateSurfaceObject(TouchPoint touch, bool moveToTop = false) {
-		SurfaceObject so = surfaceObjects.Find(s => s.id == (int)(touch.Properties["ObjectId"]));
+	private void UpdateSurfaceObject(ObjectPointer pointer, bool moveToTop = false) {
+		SurfaceObject so = surfaceObjects.Find(s => s.id == pointer.ObjectId);
+
 		if (so == null) return;
 
-		Vector2 position = Camera.main.ScreenToWorldPoint(touch.Position);
-		float angle = -(float)(touch.Properties["Angle"]) * Mathf.Rad2Deg;
+		Vector2 position = Camera.main.ScreenToWorldPoint(pointer.Position);
+		float angle = -pointer.Angle * Mathf.Rad2Deg;
 
 		so.transform.localPosition = position;
 		so.transform.eulerAngles = new Vector3(0f, 0f, angle);
@@ -218,66 +224,74 @@ public class Surface : MonoBehaviour {
 	// local mouse, local touches, remote touches, remote objects
 	//
 
-	private void OnTouchesBegan(object sender, TouchEventArgs e) {
-		foreach (TouchPoint touch in e.Touches) {
-			if (touch.Tags.HasTag(TuioInput.SOURCE_TUIO)) {
-				// tuio
-				if (touch.Tags.HasTag(Tags.INPUT_TOUCH)) {
-					CreateSurfaceCursor(touch);
-				} else if (touch.Tags.HasTag(Tags.INPUT_OBJECT)) {
-					UpdateSurfaceObject(touch, true);
+	private void OnPointersAdded(object sender, PointerEventArgs e) {
+		foreach (Pointer pointer in e.Pointers) {
+			if (pointer.InputSource is TuioInput) {
+				if (pointer.Type == Pointer.PointerType.Touch) {
+					CreateSurfaceCursor(pointer);
+				} else if (pointer.Type == Pointer.PointerType.Object) {
+					UpdateSurfaceObject(pointer as ObjectPointer, true);
 				}
+
 			} else {
 				// normal touch
-				CreateSurfaceCursor(touch);
+				CreateSurfaceCursor(pointer);
 			}
 		}
 	}
 
-	private void OnTouchesMoved(object sender, TouchEventArgs e) {
-		foreach (TouchPoint touch in e.Touches) {
-			if (touch.Tags.HasTag(TuioInput.SOURCE_TUIO)) {
-				// tuio
-				if (touch.Tags.HasTag(Tags.INPUT_TOUCH)) {
-					UpdateSurfaceCursor(touch);
-				} else if (touch.Tags.HasTag(Tags.INPUT_OBJECT)) {
-					UpdateSurfaceObject(touch);
+	private void OnPointersPressed(object sender, PointerEventArgs e) {
+		OnPointersAdded(sender, e);
+	}
+
+	private void OnPointersUpdated(object sender, PointerEventArgs e) {
+		foreach (Pointer pointer in e.Pointers) {
+			if (pointer.InputSource is TuioInput) {
+				if (pointer.Type == Pointer.PointerType.Touch) {
+					UpdateSurfaceCursor(pointer);
+				} else if (pointer.Type == Pointer.PointerType.Object) {
+					UpdateSurfaceObject(pointer as ObjectPointer);
 				}
+
 			} else {
 				// normal touch
-				UpdateSurfaceCursor(touch);
+				UpdateSurfaceCursor(pointer);
 			}
 		}
 	}
 
-	private void OnTouchesEnded(object sender, TouchEventArgs e) {
-		foreach (TouchPoint touch in e.Touches) {
-			if (touch.Tags.HasTag(TuioInput.SOURCE_TUIO)) {
-				// tuio
-				if (touch.Tags.HasTag(Tags.INPUT_TOUCH)) {
-					RemoveSurfaceCursor(touch);
-				} else if (touch.Tags.HasTag(Tags.INPUT_OBJECT)) {
-					UpdateSurfaceObject(touch);
+	private void OnPointersRemoved(object sender, PointerEventArgs e) {
+		foreach (Pointer pointer in e.Pointers) {
+			if (pointer.InputSource is TuioInput) {
+				if (pointer.Type == Pointer.PointerType.Touch) {
+					RemoveSurfaceCursor(pointer);
+				} else if (pointer.Type == Pointer.PointerType.Object) {
+					UpdateSurfaceObject(pointer as ObjectPointer);
 				}
+
 			} else {
 				// normal touch
-				RemoveSurfaceCursor(touch);
+				RemoveSurfaceCursor(pointer);
 			}
 		}
 	}
 
-	private void OnTouchesCancelled(object sender, TouchEventArgs e) {
-		foreach (TouchPoint touch in e.Touches) {
-			if (touch.Tags.HasTag(TuioInput.SOURCE_TUIO)) {
-				// tuio
-				if (touch.Tags.HasTag(Tags.INPUT_TOUCH)) {
-					RemoveSurfaceCursor(touch);
-				} else if (touch.Tags.HasTag(Tags.INPUT_OBJECT)) {
-					UpdateSurfaceObject(touch);
+	private void OnPointersReleased(object sender, PointerEventArgs e) {
+		OnPointersRemoved(sender, e);
+	}
+
+	private void OnPointersCancelled(object sender, PointerEventArgs e) {
+		foreach (Pointer pointer in e.Pointers) {
+			if (pointer.InputSource is TuioInput) {
+				if (pointer.Type == Pointer.PointerType.Touch) {
+					RemoveSurfaceCursor(pointer);
+				} else if (pointer.Type == Pointer.PointerType.Object) {
+					UpdateSurfaceObject(pointer as ObjectPointer);
 				}
+
 			} else {
 				// normal touch
-				RemoveSurfaceCursor(touch);
+				RemoveSurfaceCursor(pointer);
 			}
 		}
 	}

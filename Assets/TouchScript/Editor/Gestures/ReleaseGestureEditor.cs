@@ -11,22 +11,38 @@ namespace TouchScript.Editor.Gestures
     [CustomEditor(typeof(ReleaseGesture), true)]
     internal sealed class ReleaseGestureEditor : GestureEditor
     {
-        private static readonly GUIContent IGNORE_CHILDREN = new GUIContent("Ignore Children", "If selected this gesture ignores touch points from children.");
+        public static readonly GUIContent TEXT_IGNORE_CHILDREN = new GUIContent("Ignore Children", "If selected this gesture ignores pointers from children.");
+
+        public static readonly GUIContent TEXT_HELP = new GUIContent("This component recognizes a gesture when all pointers are lifted off from this GameObject.");
 
         private SerializedProperty ignoreChildren;
+        private SerializedProperty OnRelease;
 
         protected override void OnEnable()
         {
-            base.OnEnable();
-
             ignoreChildren = serializedObject.FindProperty("ignoreChildren");
+            OnRelease = serializedObject.FindProperty("OnRelease");
+
+            base.OnEnable();
         }
 
-        protected override void drawAdvanced()
+        protected override GUIContent getHelpText()
         {
-            EditorGUILayout.PropertyField(ignoreChildren, IGNORE_CHILDREN);
+            return TEXT_HELP;
+        }
 
-            base.drawAdvanced();
+        protected override void drawGeneral()
+        {
+            EditorGUILayout.PropertyField(ignoreChildren, TEXT_IGNORE_CHILDREN);
+
+            base.drawGeneral();
+        }
+
+        protected override void drawUnityEvents()
+        {
+            EditorGUILayout.PropertyField(OnRelease);
+
+            base.drawUnityEvents();
         }
     }
 }

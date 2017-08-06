@@ -5,12 +5,14 @@
 using System;
 using System.Collections.Generic;
 using TouchScript.Utils;
+using TouchScript.Pointers;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace TouchScript.Gestures
 {
     /// <summary>
-    /// Recognizes fast movement before releasing touches. Doesn't care how much time touch points were on surface and how much they moved.
+    /// Recognizes fast movement before releasing pointers. Doesn't care how much time pointers were on surface and how much they moved.
     /// </summary>
     [AddComponentMenu("TouchScript/Gestures/Flick Gesture")]
     [HelpURL("http://touchscript.github.io/docs/html/T_TouchScript_Gestures_FlickGesture.htm")]
@@ -65,9 +67,9 @@ namespace TouchScript.Gestures
         #region Public properties
 
         /// <summary>
-        /// Gets or sets time interval in seconds in which touch points must move by <see cref="MinDistance"/> for gesture to succeed.
+        /// Gets or sets time interval in seconds in which pointers must move by <see cref="MinDistance"/> for gesture to succeed.
         /// </summary>
-        /// <value> Interval in seconds in which touch points must move by <see cref="MinDistance"/> for gesture to succeed. </value>
+        /// <value> Interval in seconds in which pointers must move by <see cref="MinDistance"/> for gesture to succeed. </value>
         public float FlickTime
         {
             get { return flickTime; }
@@ -85,9 +87,9 @@ namespace TouchScript.Gestures
         }
 
         /// <summary>
-        /// Gets or sets minimum distance in cm touches must move to start recognizing this gesture.
+        /// Gets or sets minimum distance in cm pointers must move to start recognizing this gesture.
         /// </summary>
-        /// <value> Minimum distance in cm touches must move to start recognizing this gesture. </value>
+        /// <value> Minimum distance in cm pointers must move to start recognizing this gesture. </value>
         /// <remarks> Prevents misinterpreting taps. </remarks>
         public float MovementThreshold
         {
@@ -111,7 +113,7 @@ namespace TouchScript.Gestures
         public Vector2 ScreenFlickVector { get; private set; }
 
         /// <summary>
-        /// Gets flick time in seconds touches moved by <see cref="ScreenFlickVector"/>.
+        /// Gets flick time in seconds pointers moved by <see cref="ScreenFlickVector"/>.
         /// </summary>
         public float ScreenFlickTime { get; private set; }
 
@@ -136,9 +138,23 @@ namespace TouchScript.Gestures
         private bool isActive = false;
         private TimedSequence<Vector2> deltaSequence = new TimedSequence<Vector2>();
 
+#if UNITY_5_6_OR_NEWER
+		private CustomSampler gestureSampler;
+#endif
+
         #endregion
 
         #region Unity methods
+
+		/// <inheritdoc />
+		protected override void Awake()
+		{
+			base.Awake();
+
+#if UNITY_5_6_OR_NEWER
+			gestureSampler = CustomSampler.Create("[TouchScript] Flick Gesture");
+#endif
+		}
 
         /// <inheritdoc />
         protected void LateUpdate()
@@ -148,32 +164,50 @@ namespace TouchScript.Gestures
             deltaSequence.Add(ScreenPosition - PreviousScreenPosition);
         }
 
+        [ContextMenu("Basic Editor")]
+        private void switchToBasicEditor()
+        {
+            basicEditor = true;
+        }
+
         #endregion
 
         #region Gesture callbacks
 
         /// <inheritdoc />
-        protected override void touchesBegan(IList<TouchPoint> touches)
+        protected override void pointersPressed(IList<Pointer> pointers)
         {
-            base.touchesBegan(touches);
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.Begin();
+#endif
 
-            if (touchesNumState == TouchesNumState.PassedMaxThreshold ||
-                touchesNumState == TouchesNumState.PassedMinMaxThreshold)
+            base.pointersPressed(pointers);
+
+            if (pointersNumState == PointersNumState.PassedMaxThreshold ||
+                pointersNumState == PointersNumState.PassedMinMaxThreshold)
             {
                 if (State == GestureState.Possible) setState(GestureState.Failed);
             }
-            else if (touchesNumState == TouchesNumState.PassedMinThreshold)
+            else if (pointersNumState == PointersNumState.PassedMinThreshold)
             {
                 // Starting the gesture when it is already active? => we released one finger and pressed again while moving
                 if (isActive) setState(GestureState.Failed);
                 else isActive = true;
             }
+
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.End();
+#endif
         }
 
         /// <inheritdoc />
-        protected override void touchesMoved(IList<TouchPoint> touches)
+        protected override void pointersUpdated(IList<Pointer> pointers)
         {
-            base.touchesMoved(touches);
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.Begin();
+#endif
+
+            base.pointersUpdated(pointers);
 
             if (isActive || !moving)
             {
@@ -184,25 +218,36 @@ namespace TouchScript.Gestures
                     moving = true;
                 }
             }
+
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.End();
+#endif
         }
 
         /// <inheritdoc />
-        protected override void touchesEnded(IList<TouchPoint> touches)
+        protected override void pointersReleased(IList<Pointer> pointers)
         {
-            base.touchesEnded(touches);
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.Begin();
+#endif
 
-            if (NumTouches == 0)
+            base.pointersReleased(pointers);
+
+            if (NumPointers == 0)
             {
                 if (!isActive || !moving)
                 {
                     setState(GestureState.Failed);
+#if UNITY_5_6_OR_NEWER
+					gestureSampler.End();
+#endif
                     return;
                 }
 
                 deltaSequence.Add(ScreenPosition - PreviousScreenPosition);
 
                 float lastTime;
-                var deltas = deltaSequence.FindElementsLaterThan(Time.time - FlickTime, out lastTime);
+                var deltas = deltaSequence.FindElementsLaterThan(Time.unscaledTime - FlickTime, out lastTime);
                 var totalMovement = Vector2.zero;
                 var count = deltas.Count;
                 for (var i = 0; i < count; i++) totalMovement += deltas[i];
@@ -224,10 +269,14 @@ namespace TouchScript.Gestures
                 else
                 {
                     ScreenFlickVector = totalMovement;
-                    ScreenFlickTime = Time.time - lastTime;
+                    ScreenFlickTime = Time.unscaledTime - lastTime;
                     setState(GestureState.Recognized);
                 }
             }
+
+#if UNITY_5_6_OR_NEWER
+			gestureSampler.End();
+#endif
         }
 
         /// <inheritdoc />
