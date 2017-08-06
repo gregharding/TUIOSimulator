@@ -1,8 +1,8 @@
-# TUIOSimulator v1.1
+# TUIOSimulator v1.2
 
-**Simple Unity/C# TUIO v1.1 simulator for OS X, Windows, iOS, and Android.**
+**Simple Unity/C# TUIO v1.1 simulator for MacOS, Windows, iOS, and Android.**
 
-Send and receive [TUIO](http://www.tuio.org/) cursors and object data to and from TUIO server/client apps. Can be built for any platforms that Unity 5.x and TouchScript run on. (Tested on OS X, Win 7/10, iOS.)
+Send and receive [TUIO](http://www.tuio.org/) cursors and object data to and from TUIO server/client apps.
 
 Defaults to sending TUIO to 127.0.0.1:3333 and receiving incoming TUIO on port 33333. The settings screen saves a history of the most recent connections.
 
@@ -10,19 +10,27 @@ Supports cursors (touches/mouse) and objects (markers). Does not support blobs y
 
 **Usage**
 
-Touch or mouse-click on the surface to create and send TUIO cursors. Touch or mouse-down on an object and drag them around the surface to create and send TUIO objects. Objects can be rotated using two-finger gestures or by Shift/Alt/Ctrl + mouse-clicking to place the first touch, then mouse-down again for the second touch. On Windows 8+ use the 'mouse only' option to enable mouse two-touch emulation.
+Touch or mouse-click on the surface to create and send TUIO cursors. Touch or mouse-down on an object and drag them around the surface to create and send TUIO objects. Objects can be rotated using two-finger gestures or by Alt + mouse-clicking to place the first touch, then mouse-down again for the second touch.
 
 The simulator is chainable to another instance of itself or other TUIO applications. It will happily receive and render TUIO cursor and object information (on the local listening port) and then send it out again (to the destination server:port).
 
 Can be used with TUIOListener ([https://github.com/gregharding/TUIOListener](https://github.com/gregharding/TUIOListener)), a command-line TUIO v1.1 / OSC v1.1 network listener.
 
-Libraries:
-* [https://github.com/TouchScript/TouchScript](https://github.com/TouchScript/TouchScript)
-* [https://github.com/Unity-Technologies/PostProcessing/tree/v1](https://github.com/Unity-Technologies/PostProcessing/tree/v1)
-
 **Download**
 
-Download pre-built executables for OS X and Windows at [https://github.com/gregharding/TUIOSimulator/releases](https://github.com/gregharding/TUIOSimulator/releases).
+Download pre-built executables for MacOS and Windows at [https://github.com/gregharding/TUIOSimulator/releases](https://github.com/gregharding/TUIOSimulator/releases).
+
+* [TUIOSimulator v1.2.app (MacOS)](https://github.com/gregharding/TUIOSimulator/releases/download/1.2/TUIOSimulator_v1.2.app.zip)
+* [TUIOSimulator v1.2 (Windows x64)](https://github.com/gregharding/TUIOSimulator/releases/download/1.2/TUIOSimulator_v1.2_win_x86_64.zip)
+
+**Build Instructions**
+
+The TUIOSimulator v1.2 project can be built for any supported platform (MacOS, Windows, iOS, or Android) with Unity 2017.1 or later. Earlier versions can be built with Unity 5.x or later.
+
+Libraries:
+
+* [https://github.com/TouchScript/TouchScript](https://github.com/TouchScript/TouchScript) (v9.0)
+* [https://github.com/Unity-Technologies/PostProcessing/tree/v1](https://github.com/Unity-Technologies/PostProcessing/tree/v1)
 
 **Todo**
 
